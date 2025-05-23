@@ -1,0 +1,20 @@
+.form label {
+  display: block;
+}
+
+.form input {
+  margin-bottom: 0.5rem;
+}
+
+.form span {
+  display: inline;
+}
+
+.form div {
+  margin-top: 1rem;
+}
+
+.error {
+  color: red;
+  margin-left: 0.5rem;
+}

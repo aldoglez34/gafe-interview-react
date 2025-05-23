@@ -1,9 +1,10 @@
 export enum UserType {
-  Admin = 'admin',
-  Basic = 'basic',
+  Admin = 'Admin',
+  Basic = 'Basic',
 }
 
 export interface User {
+  _id: string;
   firstName: string;
   lastName: string;
   email: string;

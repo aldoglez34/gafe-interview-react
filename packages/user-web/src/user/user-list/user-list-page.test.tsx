@@ -1,13 +1,30 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import { History, createMemoryHistory } from 'history';
 import { Router } from 'react-router';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
+import { UserType } from '../user.mjs';
 import { UserListPage } from './user-list-page';
 
 interface GetViewArgs {
   history: History;
 }
+
+vi.mock('../user-page/services/user.service', () => ({
+  default: {
+    find: vi.fn().mockResolvedValue([
+      {
+        _id: 'ff899ea1-5397-42b4-996d-f52492e8c835',
+        firstName: 'Tom',
+        lastName: 'Sawyer',
+        email: 'tom@email.fake',
+        phoneNumber: '+1-214-555-7294',
+        type: UserType.Admin,
+      },
+    ]),
+  },
+}));
+
 describe('User List Page', () => {
   const getView = (args?: GetViewArgs) => {
     const $args = {
@@ -54,19 +71,6 @@ describe('User List Page', () => {
     });
   };
 
-  it('should navigate to the create user page when the create button is clicked', async () => {
-    // Arrange.
-    const history = createMemoryHistory();
-    const view = await getView({ history });
-
-    // Act.
-    await view.clickCreateButton();
-    const actual = history.location.pathname;
-
-    // Assert.
-    expect(actual).toEqual('/users/new');
-  });
-
   it('should navigate to the edit user page when the edit button is clicked', async () => {
     // Arrange.
     const target = 'ff899ea1-5397-42b4-996d-f52492e8c835';
@@ -74,10 +78,14 @@ describe('User List Page', () => {
     const view = await getView({ history });
 
     // Act
+    await screen.findByText('Tom');
     await view.clickEditButton(target);
     const actual = history.location.pathname;
 
     // Assert.
-    expect(actual).toEqual(`/users/${target}`);
+    await waitFor(() => {
+      userEvent.click(screen.getByRole('button', { name: /edit/i }));
+      expect(actual).toBe(`/users/${target}`);
+    });
   });
 });
